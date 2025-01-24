@@ -117,6 +117,42 @@ namespace UserInput
   }
 }
 
+// stores a pair of coordinates for the board
+struct Point
+{
+  int x{};
+  int y{};
+
+  friend bool operator==(const Point p1, const Point p2)
+  {
+    return (p1.x == p2.x) && (p1.y == p2.y);
+  }
+
+  friend bool operator!=(const Point p1, const Point p2)
+  {
+    return !(p1 == p2);
+  }
+
+  Point getAdjacentPoint(Direction d) const
+  {
+    switch (d.getType())
+    {
+    case Direction::up:
+      return Point{x, y - 1};
+    case Direction::down:
+      return Point{x, y + 1};
+    case Direction::left:
+      return Point{x - 1, y};
+    case Direction::right:
+      return Point{x + 1, y};
+    default:
+      break;
+    }
+    assert(0 && "Unsupported direction was passed!");
+    return *this;
+  }
+};
+
 // class for a single game tile
 class Tile
 {
@@ -180,32 +216,14 @@ public:
 
 int main()
 {
-  Board board{};
-  std::cout << board;
-
-  std::cout << "Generating random direction... " << Direction::getRandomDirection() << '\n';
-  std::cout << "Generating random direction... " << Direction::getRandomDirection() << '\n';
-  std::cout << "Generating random direction... " << Direction::getRandomDirection() << '\n';
-  std::cout << "Generating random direction... " << Direction::getRandomDirection() << "\n\n";
-
-  std::cout << "Enter a command: ";
-
-  while (true)
-  {
-    char ch{UserInput::getUserInput()};
-
-    // Handle non-direction commands
-    if (ch == 'q')
-    {
-      std::cout << "\n\nBye!\n\n";
-      return 0;
-    }
-
-    // Handle direction commands
-    Direction dir{UserInput::convertToDirection(ch)};
-
-    std::cout << "You entered direction: " << dir << '\n';
-  }
+  std::cout << std::boolalpha;
+  std::cout << (Point{1, 1}.getAdjacentPoint(Direction::up) == Point{1, 0}) << '\n';
+  std::cout << (Point{1, 1}.getAdjacentPoint(Direction::down) == Point{1, 2}) << '\n';
+  std::cout << (Point{1, 1}.getAdjacentPoint(Direction::left) == Point{0, 1}) << '\n';
+  std::cout << (Point{1, 1}.getAdjacentPoint(Direction::right) == Point{2, 1}) << '\n';
+  std::cout << (Point{1, 1} != Point{2, 1}) << '\n';
+  std::cout << (Point{1, 1} != Point{1, 2}) << '\n';
+  std::cout << !(Point{1, 1} != Point{1, 1}) << '\n';
 
   return 0;
 }
