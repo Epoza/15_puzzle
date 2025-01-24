@@ -2,6 +2,7 @@
 #include <vector>
 #include <cassert>
 #include <limits>
+#include <algorithm>
 #include "Random.h"
 
 // clear the previous game or other console messages
@@ -212,18 +213,79 @@ public:
     }
     return out;
   };
+
+  bool validPoint(Point &p)
+  {
+    return (p.x >= 0 && p.x <= 4) && (p.y >= 0 && p.y <= 4);
+  };
+
+  Point findEmpyTilePos()
+  {
+    // iterate through each row
+    for (int y{0}; y < m_gameboard.size(); y++)
+    {
+      for (int x{0}; x < m_gameboard.size(); x++)
+      {
+        if (m_gameboard[y][x].isEmpty())
+          return Point{x, y};
+      }
+    }
+    assert(0 && "There is no empty tile in the board!!!");
+    return {-1, -1};
+  }
+
+  void swapTiles(Point &p1, Point &p2)
+  {
+    std::swap(m_gameboard[p1.y][p1.x], m_gameboard[p2.y][p2.x]);
+  }
+
+  bool moveTile(Direction &d)
+  {
+    Point emptyTile{findEmpyTilePos()};
+    Point adjTile{emptyTile.getAdjacentPoint(-d)};
+
+    if (!validPoint(adjTile))
+      return false;
+
+    swapTiles(emptyTile, adjTile);
+    return true;
+  }
 };
 
 int main()
 {
-  std::cout << std::boolalpha;
-  std::cout << (Point{1, 1}.getAdjacentPoint(Direction::up) == Point{1, 0}) << '\n';
-  std::cout << (Point{1, 1}.getAdjacentPoint(Direction::down) == Point{1, 2}) << '\n';
-  std::cout << (Point{1, 1}.getAdjacentPoint(Direction::left) == Point{0, 1}) << '\n';
-  std::cout << (Point{1, 1}.getAdjacentPoint(Direction::right) == Point{2, 1}) << '\n';
-  std::cout << (Point{1, 1} != Point{2, 1}) << '\n';
-  std::cout << (Point{1, 1} != Point{1, 2}) << '\n';
-  std::cout << !(Point{1, 1} != Point{1, 1}) << '\n';
+  Board board{};
+  std::cout << board;
+
+  std::cout << "Generating random direction... " << Direction::getRandomDirection() << '\n';
+  std::cout << "Generating random direction... " << Direction::getRandomDirection() << '\n';
+  std::cout << "Generating random direction... " << Direction::getRandomDirection() << '\n';
+  std::cout << "Generating random direction... " << Direction::getRandomDirection() << "\n\n";
+
+  std::cout << "Enter a command: ";
+
+  while (true)
+  {
+    char ch{UserInput::getUserInput()};
+
+    // Handle non-direction commands
+    if (ch == 'q')
+    {
+      std::cout << "\n\nBye!\n\n";
+      return 0;
+    }
+
+    // Handle direction commands
+    Direction dir{UserInput::convertToDirection(ch)};
+
+    std::cout << "You entered direction: " << dir << '\n';
+
+    bool userMoved{board.moveTile(dir)};
+    if (userMoved)
+    {
+      std::cout << board;
+    }
+  }
 
   return 0;
 }
