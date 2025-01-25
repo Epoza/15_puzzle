@@ -167,10 +167,10 @@ public:
   }
 
   // tile of number 0 is the empty tile
-  bool isEmpty() { return m_number == 0; };
+  bool isEmpty() const { return m_number == 0; };
 
   // return the tile number
-  int getNum() { return m_number; };
+  int getNum() const { return m_number; };
 };
 
 // output the tile number
@@ -216,7 +216,7 @@ public:
 
   bool validPoint(Point &p)
   {
-    return (p.x >= 0 && p.x <= 4) && (p.y >= 0 && p.y <= 4);
+    return (p.x >= 0 && p.x <= 3) && (p.y >= 0 && p.y <= 3);
   };
 
   Point findEmpyTilePos()
@@ -239,7 +239,7 @@ public:
     std::swap(m_gameboard[p1.y][p1.x], m_gameboard[p2.y][p2.x]);
   }
 
-  bool moveTile(Direction &d)
+  bool moveTile(const Direction &d)
   {
     Point emptyTile{findEmpyTilePos()};
     Point adjTile{emptyTile.getAdjacentPoint(-d)};
@@ -250,21 +250,50 @@ public:
     swapTiles(emptyTile, adjTile);
     return true;
   }
+
+  // randomize the board n iterations
+  void randomize(int n)
+  {
+    for (int i{0}; i < n;)
+    {
+      if (moveTile(Direction::getRandomDirection()))
+        ++i;
+    }
+  }
+
+  friend bool operator==(const Board &board1, const Board &board2)
+  {
+    // iterate through each row
+    for (int y{0}; y < board1.m_gameboard.size(); y++)
+    {
+      for (int x{0}; x < board1.m_gameboard.size(); x++)
+      {
+        if (board1.m_gameboard[y][x].getNum() != board2.m_gameboard[y][x].getNum())
+          return false;
+      }
+    }
+    return true;
+  }
+
+  bool playerWon()
+  {
+    Board solved{};
+    return solved == *this;
+  }
 };
 
 int main()
 {
   Board board{};
-  std::cout << board;
 
-  std::cout << "Generating random direction... " << Direction::getRandomDirection() << '\n';
-  std::cout << "Generating random direction... " << Direction::getRandomDirection() << '\n';
-  std::cout << "Generating random direction... " << Direction::getRandomDirection() << '\n';
-  std::cout << "Generating random direction... " << Direction::getRandomDirection() << "\n\n";
+  // generate 1000 random movements
+  board.randomize(1000);
+
+  std::cout << board;
 
   std::cout << "Enter a command: ";
 
-  while (true)
+  while (!board.playerWon())
   {
     char ch{UserInput::getUserInput()};
 
@@ -286,6 +315,8 @@ int main()
       std::cout << board;
     }
   }
+
+  std::cout << "\nYou win!\n";
 
   return 0;
 }
