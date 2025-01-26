@@ -92,7 +92,7 @@ namespace UserInput
     char input{};
     while (!isValid(input))
     {
-      std::cout << "Please enter a command: ";
+      std::cout << "\nEnter a move: ";
       std::cin >> input;
       std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     }
@@ -291,7 +291,10 @@ int main()
 
   std::cout << board;
 
-  std::cout << "Enter a command: ";
+  std::cout << "Directions: A(left), W(up), S(down),D(right) ";
+
+  // keep track of the amount of moves a user takes
+  int moves{0};
 
   while (!board.playerWon())
   {
@@ -313,10 +316,12 @@ int main()
     if (userMoved)
     {
       std::cout << board;
+      moves++;
     }
+    std::cout << "moves: " << moves;
   }
 
-  std::cout << "\nYou win!\n";
+  std::cout << "\nYou win!\nmoves made: " << moves << '\n';
 
   return 0;
 }
